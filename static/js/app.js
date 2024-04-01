@@ -1,25 +1,58 @@
 let url = "https://static.bc-edx.com/data/dl-1-2/m14/lms/starter/samples.json"
+
 // Promise pending
-let data = d3.json(url);
+let dataPromise = d3.json(url);
+console.log("Data Promise: " dataPromise);
+
 // Use the D3 library to read in samples.json from the URL
 d3.json(url).then(function(data) {
     console.log(data);
 })
 
-    let samples = data.samples;
-    let resultArray = samples.filter(sampleObj => sampleObj.id == sample);
-    let result = resultArray[0];
-    let otu_ids = result.otu_ids;
-    let otu_labels = result.otu_labels;
-    let sample_values = result.sample_values;
+// Extract Data
+let names = data.names
+let sampleValues = data.sample_values;
+let otuIds = data.otu_ids;
+// let otuLabels = data.otu.labels;
+let result = sampleValues.filter(object => object.id == sampleValues);
 
-  let trace1 = {
-  y: sample_values,
-  x: otu_ids,
-  hoverinfo: names.map(otu_labels),
+// sort & slice to get top 10 OTUs
+// let top10otus = sampleValues.slice(0, 10);
+
+let selector = d3.select(dataPromise);
+
+let trace1 = {
+  y: otuIds,
+  x: sampleValues,
+  // hoverinfo: otuLabels,
   type: "bar",
   orientation: "h"
 };
 
-    // Create plot
-    Plotly.newPlot("plot", [trace1], layout);
+let layout = {
+  title: "Top 10 OTUs Found",
+};
+
+// Create plot
+Plotly.newPlot("plot", trace1, layout);
+
+ 
+// Build the bubble chart
+let trace2 = {
+  x: otuIds,
+  y: sampleValues,
+  // text: otuLabels,
+};
+
+let layout2 = {
+  title: "All Samples",
+  // hoverinfo: ,
+  xaxis: {title: "OTU ID" },
+  marker: {
+    size: sampleValues,
+    color: otuIds,
+    colorscale: "Earth",
+    // text: otuLabels
+};
+
+Plotly.newPlot("bubble", trace2, layout2);
