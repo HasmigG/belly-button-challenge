@@ -20,25 +20,57 @@ async function optionChanged(id) {
 
     d3.select('#sample-metadata').html('');
     Object.entries(meta).forEach(([key, val]) => {
-        d3.select('#sample-metadata').append('h5').html(`<b><i>${key}:</i></b> ${val}`);
+        d3.select('#sample-metadata').append('h6').html(`${key}: ${val}`);
     });
 
     // Bar Chart
-
     let {otu_ids, otu_labels, sample_values } = samples.find(dict => dict.id == id);
     
-    // console.log(data1.otu_ids, data1.otu_labels, data1.sample_values);
-
-    console.log(otu_ids);
-
-    var data = [
+    var top_otus = [
         {
-            x: ['giraffes', 'orangutans', 'monkeys'],
-            y: [20, 14, 23],
+            x: sample_values.slice(0,10).reverse(),
+            y: otu_ids.slice(0,10).reverse().map(x => `OTU ${x}`),
+            text: otu_labels.slice(0,10).reverse(),
             type: 'bar',
             orientation: 'h'
         }
     ];
 
-    Plotly.newPlot('bar', data);
+    Plotly.newPlot('bar', top_otus);
+
+
+    var trace1 = {
+        x: otu_ids,
+        y: sample_values,
+        mode: 'markers',
+        text: otu_labels,
+        marker: {
+          color: otu_ids,
+          colorscale: "Earth",
+          size: sample_values
+        }
+      };
+      
+      var bubble_data = [trace1];
+      
+      
+      Plotly.newPlot('bubble', bubble_data);
+
+    
+      var gauge_data = [
+        {
+          domain: { x: [0, 1], y: [0, 1] },
+          value: meta.wfreq,
+          title: { text: "<b>Belly Button Wash Frequency</b><br>Scrubs Per Week"},
+          type: "indicator",
+          mode: "gauge+number",
+          delta: { reference: 400 },
+          gauge: { axis: { range: [null, 9] } }
+        }
+      ];
+      
+      var layout = { width: 600, height: 400 };
+      Plotly.newPlot('gauge', gauge_data);
+    
+
 };
